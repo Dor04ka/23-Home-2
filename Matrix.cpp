@@ -1,7 +1,9 @@
 #include <iostream>
 #include <typeinfo>
 #include <fstream>
+#include <string>
 using namespace std;
+
 template <typename T>
 class Matrix {
 
@@ -33,6 +35,8 @@ public:
 		}
 	}
 
+
+
 	// перегрузка чтени€ из консоли
 	friend istream& operator >> (istream& os, Matrix& m) {
 		m.m = new T * [m.rows];
@@ -57,10 +61,134 @@ public:
 		cout << endl;
 		return os;
 	}
+
+
+
+	// оператор присваивани€
+	Matrix& operator = (const Matrix& other) {
+		this->cols = other.cols;
+		this->rows = other.rows;
+		if (this->m != nullptr) {
+			for (size_t i = 0; i < rows; i++) {
+				delete[] this->m[i];
+			}
+			delete[] this->m;
+		}
+		this->m = new T * [rows];
+		for (size_t i = 0; i < rows; i++) {
+			m[i] = new T[cols];
+		}
+		for (size_t i = 0; i < other.rows; i++) {
+			for (size_t j = 0; j < other.cols; j++) {
+				this->m[i][j] = other.m[i][j];
+			}
+		}
+		return *this;
+	}
+
+	// сложение 2х матриц
+	Matrix operator + (const Matrix& other) {
+		//if (typeid(m[0][0]).name() != typeid(other.m[0][0]).name()) {
+			//cout << "ќпераци€ невозможна. ћатрицы разных типов." << endl;
+		//}
+		if (this->rows != other.rows || this->cols != other.cols) {
+			cout << "ќпераци€ невозможна. ћатрицы разных размерностей." << endl;
+		}
+		else {
+			Matrix res(rows, cols);
+			for (size_t i = 0; i < rows; i++) {
+				for (size_t j = 0; j < cols; j++) {
+					res.m[i][j] = m[i][j] + other.m[i][j];
+				}
+			}
+			return res;
+		}
+	}
+
+	// вычитание 2х матриц
+	Matrix operator - (const Matrix& other) {
+		//if (typeid(m[0][0]).name() != typeid(other.m[0][0]).name()) {
+			//cout << "ќпераци€ невозможна. ћатрицы разных типов." << endl;
+		//}
+		if (this->rows != other.rows || this->cols != other.cols) {
+			cout << "ќпераци€ невозможна. ћатрицы разных размерностей." << endl;
+		}
+		else {
+			Matrix res(rows, cols);
+			for (size_t i = 0; i < rows; i++) {
+				for (size_t j = 0; j < cols; j++) {
+					res.m[i][j] = m[i][j] - other.m[i][j];
+				}
+			}
+			return res;
+		}
+	}
+
+	// умножение 2х матриц
+	Matrix operator * (const Matrix& other) {
+		if (this->cols != other.rows) cout << "ћатрицы перемножить нельз€." << endl;
+		else {
+			Matrix res(rows, other.cols);
+			for (size_t i = 0; i < rows; i++) {
+				for (size_t j = 0; j < other.cols; j++) {
+					res.m[i][j] = 0;
+					for (size_t k = 0; k < cols; k++) {
+						res.m[i][j] += m[i][k] * other.m[k][j];
+					}
+				}
+			}
+			return res;
+		}
+	}
+
+	// умножение матрицы на скал€р
+	Matrix operator * (const double a) {
+		for (size_t i = 0; i < rows; i++) {
+			for (size_t j = 0; j < cols; j++) {
+				m[i][j] *= a;
+			}
+		}
+		return *this;
+	}
+
+	// статический метод создани€ нулевой матрицы
+	static Matrix ZeroMatrix(size_t rows, size_t cols) {
+		Matrix res(rows, cols);
+		return res;
+	}
+
+	// статический метод создани€ единичной матрицы
+	static Matrix OneMatrix(size_t rows, size_t cols) {
+		if (rows != cols)
+			cout << "ћатрица не €вл€етс€ квадратной!";
+		else {
+			Matrix res(rows, cols);
+			for (size_t i = 0; i < res.rows; i++) {
+				res.m[i][i] = 1;
+			}
+			return res;
+		}
+	}
+
+
+
+	// деструктор
+	~Matrix() {
+		for (size_t i = 0; i < rows; i++) {
+			delete[] m[i];
+		}
+		delete[] m;
+	}
+
 };
 
 int main() {
-	Matrix<int> a(3, 4);
-	cin >> a;
-	cout << a;
+
+	setlocale(LC_ALL, "ru");
+
+	Matrix<int> ma = Matrix<int>::ZeroMatrix(3, 3);
+	cout << ma;
+
+	Matrix<double> m = Matrix<double>::OneMatrix(4, 4);
+	cout << m;
 }
