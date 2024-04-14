@@ -13,11 +13,21 @@ private:
 
 public:
 
-	// конструктор пустой матрицы
+	// конструктор пустой матрицы, размеры и элементы задаются с консоли
 	Matrix() {
-		rows = 0;
-		cols = 0;
-		m = nullptr;
+		cout << "Введите кол-во строк: ";
+		cin >> rows;
+		cout << "Ведите кол-во столбцов: ";
+		cin >> cols;
+		m = new T * [rows];
+		for (size_t i = 0; i < rows; i++) {
+			m[i] = new T[cols];
+		}
+		for (size_t i = 0; i < rows; i++) {
+			for (size_t j = 0; j < cols; j++) {
+				cin >> m[i][j];
+			}
+		}
 	}
 
 	// конструктор матрицы заданного размера (заполнена 0)
@@ -33,6 +43,96 @@ public:
 				m[i][j] = 0;
 			}
 		}
+	}
+
+	// конструктор матрицы, считываемой из файла
+	Matrix(const string& fileName) {
+		ifstream fin;
+		fin.open(fileName);
+		if (!fin.is_open()) {
+			cout << "Ошибка открытия файла!" << endl;
+		}
+		else {
+			fin >> rows;
+			fin >> cols;
+			this->rows = rows;
+			this->cols = cols;
+			this->m = new T * [rows];
+			for (size_t i = 0; i < rows; i++) {
+				m[i] = new T[cols];
+			}
+			for (size_t i = 0; i < rows; i++) {
+				for (int j = 0; j < cols; j++) {
+					fin >> m[i][j];
+				}
+			}
+		}
+		fin.close();
+	}
+
+
+
+	// считывание матрицы с консоли
+	void readConsole() {
+		for (size_t i = 0; i < rows; i++) {
+			for (size_t j = 0; j < cols; j++) {
+				cin >> m[i][j];
+			}
+		}
+	}
+
+	// вывод заданной матрицы в консоль
+	void printConsole() {
+		for (size_t i = 0; i < rows; i++) {
+			for (size_t j = 0; j < cols; j++) {
+				cout << m[i][j] << " ";
+			}
+			cout << endl;
+		}
+	}
+
+	// считывание матрицы из файла
+	void readFile(const string& fileName) {
+		ifstream fin;
+		fin.open(fileName);
+		if (!fin.is_open()) {
+			cout << "Ошибка открытия файла!" << endl;
+		}
+		else {
+			fin >> rows;
+			fin >> cols;
+			this->rows = rows;
+			this->cols = cols;
+			this->m = new T * [rows];
+			for (size_t i = 0; i < rows; i++) {
+				m[i] = new T[cols];
+			}
+			for (size_t i = 0; i < rows; i++) {
+				for (int j = 0; j < cols; j++) {
+					fin >> m[i][j];
+				}
+			}
+		}
+		fin.close();
+	}
+
+	// вывод заданной матрицы в файл
+	void printFile(const string& fileName) {
+		ofstream fout;
+		fout.open(fileName);
+		if (!fout.is_open()) {
+			cout << "Ошибка открытия файла!" << endl;
+		}
+		else {
+			fout << rows << " " << cols << endl;
+			for (size_t i = 0; i < rows; i++) {
+				for (size_t j = 0; j < cols; j++) {
+					fout << m[i][j] << " ";
+				}
+				fout << endl;
+			}
+		}
+		fout.close();
 	}
 
 
@@ -186,9 +286,15 @@ int main() {
 
 	setlocale(LC_ALL, "ru");
 
-	Matrix<int> ma = Matrix<int>::ZeroMatrix(3, 3);
-	cout << ma;
+	//cout << "Пример нулевой матрицы 3х3:" << endl;
+	//Matrix<int> ma = Matrix<int>::ZeroMatrix(3, 3);
+	//cout << ma;
 
-	Matrix<double> m = Matrix<double>::OneMatrix(4, 4);
-	cout << m;
+	//cout << "Пример единичной матрицы 4х4." << endl;
+	//Matrix<double> m = Matrix<double>::OneMatrix(4, 4);
+	//cout << m;
+
+	Matrix<int> a("file.txt");
+	cout << a;
+
 }
