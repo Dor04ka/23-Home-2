@@ -137,7 +137,7 @@ public:
 
 
 
-	// перегрузка чтения из консоли
+	// перегрузка чтения из консоли (А ОНО НУЖНО ВООБЩЕ?????)
 	friend istream& operator >> (istream& os, Matrix& m) {
 		m.m = new T * [m.rows];
 		for (size_t i = 0; i < m.rows; i++) {
@@ -160,6 +160,113 @@ public:
 		}
 		cout << endl;
 		return os;
+	}
+
+	// перегрузка чтения из файла
+	friend ifstream& operator >> (ifstream& fileName, Matrix& m) {
+		fileName >> m.rows;
+		fileName >> m.cols;
+		m.m = new T * [m.rows];
+		for (size_t i = 0; i < m.rows; i++) {
+			m.m[i] = new T[m.cols];
+		}
+		for (size_t i = 0; i < m.rows; i++) {
+			for (int j = 0; j < m.cols; j++) {
+				fileName >> m.m[i][j];
+			}
+		}
+		return fileName;
+	}
+
+	// перегрузка вывода в файл 
+	friend ofstream& operator << (ofstream& fileName, const Matrix& m) {
+		fileName << m.rows << " " << m.cols << endl;
+		for (size_t i = 0; i < m.rows; i++) {
+			for (size_t j = 0; j < m.cols; j++) {
+				fileName << m.m[i][j] << " ";
+			}
+			fileName << endl;
+
+		}
+		return fileName;
+	}
+
+
+	// проверка равенства двух матриц 
+	bool operator == (const Matrix& other) {
+		if (this->cols != other.cols || this->rows != other.rows) {
+			return false;
+		}
+		else {
+			bool flag = true;
+			for (size_t i = 0; i < rows; i++) {
+				for (size_t j = 0; j < cols; j++) {
+					if (this->m[i][j] != other.m[i][j]) {
+						flag = false;
+						break;
+					}
+				}
+			}
+			return flag;
+		}
+
+	}
+
+	// равенство матрицы и скаляра
+	bool operator == (const double a) {
+		if (this->cols != this->rows) return false;
+		else {
+			bool flag = true;
+			for (size_t i = 0; i < rows; i++) {
+				for (size_t j = 0; j < cols; j++) {
+					if (i == j && m[i][j] != a) {
+						flag = false;
+						break;
+					}
+					else if (i != j && m[i][j] != 0) {
+						flag = false;
+						break;
+					}
+				}
+			}
+			return flag;
+		}
+	}
+
+	// проверка неравенства двух матриц 
+	bool operator != (const Matrix& other) {
+		if (this->rows == other.rows && this->cols == other.cols) {     // если размерность одинаковая
+			long flag = 0;
+			for (size_t i = 0; i < rows; i++) {
+				for (size_t j = 0; j < cols; j++) {
+					if (this->m[i][j] == other.m[i][j]) flag++;
+				}
+			}
+			if (flag == rows * cols) return false;
+			else return true;
+		}
+		else return true;        // в противном случае
+	}
+
+	// проверка неравенства матрицы и скаляра
+	bool operator != (const double a) {
+		if (this->cols != this->rows) return true;
+		else {
+			bool flag = false;
+			for (size_t i = 0; i < rows; i++) {
+				for (size_t j = 0; j < cols; j++) {
+					if (i == j && m[i][j] != a) {
+						flag = true;
+						break;
+					}
+					else if (i != j && m[i][j] != 0) {
+						flag = true;
+						break;
+					}
+				}
+			}
+			return flag;
+		}
 	}
 
 
@@ -251,6 +358,8 @@ public:
 		return *this;
 	}
 
+
+
 	// статический метод создания нулевой матрицы
 	static Matrix ZeroMatrix(size_t rows, size_t cols) {
 		Matrix res(rows, cols);
@@ -294,7 +403,28 @@ int main() {
 	//Matrix<double> m = Matrix<double>::OneMatrix(4, 4);
 	//cout << m;
 
-	Matrix<int> a("file.txt");
-	cout << a;
+	//cout << "Пример записи матрицы в файл." << endl;
+	//Matrix<double> a;
+	//ofstream fout;
+	//string path = "file.txt";
+	//fout.open(path);
+	//fout << a;
+	//fout.close();
+	//Matrix<double> b("file.txt");
+	//cout << b;
 
+	//cout << "Пример считывания матрицы из файла" << endl;
+	//string path = "file.txt";
+	//ifstream fin;
+	//fin.open(path);
+	//Matrix<double> a("file.txt");
+	//fin >> a;
+	//cout << a;
+
+	Matrix<int> a;
+	Matrix<int> b;
+	if (a == b)
+		cout << "y";
+	else
+		cout << "n";
 }
