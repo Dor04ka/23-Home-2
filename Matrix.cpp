@@ -13,21 +13,11 @@ private:
 
 public:
 
-	// конструктор пустой матрицы, размеры и элементы задаются с консоли
+	// конструктор пустой матрицы
 	Matrix() {
-		cout << "Введите кол-во строк: ";
-		cin >> rows;
-		cout << "Ведите кол-во столбцов: ";
-		cin >> cols;
-		m = new T * [rows];
-		for (size_t i = 0; i < rows; i++) {
-			m[i] = new T[cols];
-		}
-		for (size_t i = 0; i < rows; i++) {
-			for (size_t j = 0; j < cols; j++) {
-				cin >> m[i][j];
-			}
-		}
+		cols = 0;
+		rows = 0;
+		m = nullptr;
 	}
 
 	// конструктор матрицы заданного размера (заполнена 0)
@@ -139,15 +129,22 @@ public:
 
 	// перегрузка чтения из консоли (А ОНО НУЖНО ВООБЩЕ?????)
 	friend istream& operator >> (istream& os, Matrix& m) {
+		cout << "Введите кол-во строк: ";
+		os >> m.rows;
+		cout << "Ведите кол-во столбцов: ";
+		os >> m.cols;
 		m.m = new T * [m.rows];
 		for (size_t i = 0; i < m.rows; i++) {
 			m.m[i] = new T[m.cols];
+		}
+		for (size_t i = 0; i < m.rows; i++) {
 			for (size_t j = 0; j < m.cols; j++) {
 				os >> m.m[i][j];
 			}
 		}
 		cout << endl;
 		return os;
+
 	}
 
 	// перегрузка вывода в консоль
@@ -368,14 +365,113 @@ public:
 
 	// статический метод создания единичной матрицы
 	static Matrix OneMatrix(size_t rows, size_t cols) {
-		if (rows != cols)
-			cout << "Матрица не является квадратной!";
-		else {
+		if (rows == cols) {
 			Matrix res(rows, cols);
 			for (size_t i = 0; i < res.rows; i++) {
 				res.m[i][i] = 1;
 			}
 			return res;
+		}
+		else {
+			throw "Матрица не является квадратной.";
+		}
+	}
+
+
+
+	// Минор матрицы с удаленными строкой и столбцом
+	Matrix Minor(size_t row, size_t col) {
+		Matrix minor(rows - 1, cols - 1);
+		size_t minorRow = 0;
+		for (size_t i = 0; i < rows; i++) {
+			if (i == row)
+				continue;
+			size_t minorCol = 0;
+			for (size_t j = 0; j < cols; j++) {
+				if (j == col)
+					continue;
+				minor.m[minorRow][minorCol] = m[i][j];
+				minorCol++;
+			}
+			minorRow++;
+		}
+		return minor;
+	}
+
+	// определитель матрицы
+	double det() {
+		if (rows != cols)
+			throw "Матрица не является квадратной.";
+		else {
+			if (this->rows == 1)
+				return m[0][0];
+			else if (this->rows == 2)
+				return m[0][0] * m[1][1] - m[0][1] * m[1][0];
+			else {
+				double res = 0;
+				for (size_t j = 0; j < cols; j++) {
+					Matrix minor = Minor(0, j);
+					short sign = 0;
+					if (j % 2 == 0)
+						sign = 1;
+					else
+						sign = -1;
+					res += sign * minor.det() * m[0][j];
+				}
+				return res;
+			}
+		}
+	}
+
+	// транспонированная матрица
+	Matrix trans() {
+		if (this->rows == this->cols) {
+			Matrix mat(rows, cols);
+			for (size_t i = 0; i < rows; i++) {
+				for (size_t j = 0; j < cols; j++) {
+					mat.m[i][j] = m[j][i];
+				}
+			}
+			return mat;
+		}
+		else {
+			throw "Матрица не является квадратной.";
+		}
+	}
+
+	// перегрузка !
+	Matrix operator ! () {
+		// делаем копию, чтобы не менять содержание искомой матрицы
+		Matrix copy(rows, cols);
+		for (size_t i = 0; i < rows; i++) {
+			for (size_t j = 0; j < cols; j++) {
+				copy.m[i][j] = m[i][j];
+			}
+		}
+		double det = copy.det();
+		if (rows != cols || det == 0)
+			throw "Обратной матрицы не существует.";
+		else {
+			// матрица миноров, состоящая из определителей соответсвующих миноров
+			Matrix minor(rows, cols);
+			for (size_t i = 0; i < rows; i++) {
+				for (size_t j = 0; j < cols; j++) {
+					short sign;
+					if ((i + j) % 2 == 0)
+						sign = 1;
+					else
+						sign = -1;
+					minor.m[i][j] = sign * (copy.Minor(i, j)).det();
+				}
+			}
+			minor = minor.trans();
+			for (size_t i = 0; i < rows; i++) {
+				for (size_t j = 0; j < cols; j++) {
+					minor.m[i][j] *= (1 / det);
+				}
+			}
+			return minor;
+
 		}
 	}
 
@@ -421,10 +517,16 @@ int main() {
 	//fin >> a;
 	//cout << a;
 
-	Matrix<int> a;
-	Matrix<int> b;
-	if (a == b)
-		cout << "y";
-	else
-		cout << "n";
+	cout << "Пример нахождения обратной матрицы" << endl;
+	Matrix<double>a;
+	cin >> a;
+	try {
+		Matrix<double> b = !a;
+		cout << b;
+		cout << b * a;
+	}
+	catch (const char* error) {
+		cout << error << endl;
+	}
+
 }
