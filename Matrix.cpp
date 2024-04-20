@@ -127,7 +127,7 @@ public:
 
 
 
-	// перегрузка чтения из консоли
+	// перегрузка чтения из консоли (А ОНО НУЖНО ВООБЩЕ?????)
 	friend istream& operator >> (istream& os, Matrix& m) {
 		cout << "Введите кол-во строк: ";
 		os >> m.rows;
@@ -296,7 +296,7 @@ public:
 			//cout << "Операция невозможна. Матрицы разных типов." << endl;
 		//}
 		if (this->rows != other.rows || this->cols != other.cols) {
-			cout << "Операция невозможна. Матрицы разных размерностей." << endl;
+			throw "Матрицы невозможно сложить.";
 		}
 		else {
 			Matrix res(rows, cols);
@@ -315,7 +315,7 @@ public:
 			//cout << "Операция невозможна. Матрицы разных типов." << endl;
 		//}
 		if (this->rows != other.rows || this->cols != other.cols) {
-			cout << "Операция невозможна. Матрицы разных размерностей." << endl;
+			throw "Матрицы невозможно вычесть";
 		}
 		else {
 			Matrix res(rows, cols);
@@ -330,7 +330,7 @@ public:
 
 	// умножение 2х матриц
 	Matrix operator * (const Matrix& other) {
-		if (this->cols != other.rows) cout << "Матрицы перемножить нельзя." << endl;
+		if (this->cols != other.rows) throw "Матрицы невозможно перемножить.";
 		else {
 			Matrix res(rows, other.cols);
 			for (size_t i = 0; i < rows; i++) {
@@ -516,6 +516,17 @@ int main() {
 	//Matrix<double> a("file.txt");
 	//fin >> a;
 	//cout << a;
+
+	//Matrix<int> a;
+	//cin >> a;
+	//Matrix<int> b;
+	//cin >> b;
+	//try {
+		//cout << a + b;
+	//}
+	//catch (const char* error) {
+		//cout << error << endl;
+	//}
 
 	cout << "Пример нахождения обратной матрицы" << endl;
 	Matrix<double>a;
